@@ -7,8 +7,13 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
 
-BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+DEFAULT_BOT_TOKEN = "8538544741:AAFuPK-A0lcc0-rSUOHzO2zWD4T0ANVqV_c"
+DEFAULT_CHAT_ID = "6809012214"
+
+def get_credentials():
+    token = os.environ.get("TELEGRAM_BOT_TOKEN") or DEFAULT_BOT_TOKEN
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID") or DEFAULT_CHAT_ID
+    return token, chat_id
 
 def get_fear_and_greed():
     url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
@@ -223,6 +228,10 @@ def send_telegram(info):
         f"[CNN 시장 지표 바로가기](https://edition.cnn.com/markets/fear-and-greed)"
     )
     
+    token, chat_id = get_credentials()
+    if not token or not chat_id:
+        raise ValueError("TELEGRAM_BOT_TOKEN과 TELEGRAM_CHAT_ID를 설정해주세요.")
+
     # 1. 차트 이미지 생성
     chart_path = None
     try:
@@ -233,9 +242,9 @@ def send_telegram(info):
     # 2. 이미지 첨부하여 텔레그램 전송 (sendPhoto)
     if chart_path and os.path.exists(chart_path):
         try:
-            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+            url = f"https://api.telegram.org/bot{token}/sendPhoto"
             payload = {
-                "chat_id": CHAT_ID,
+                "chat_id": chat_id,
                 "caption": caption,
                 "parse_mode": "Markdown"
             }
@@ -249,9 +258,9 @@ def send_telegram(info):
             print(f"이미지 전송 실패, 텍스트 메시지로 재시도: {e}")
 
     # 3. 이미지 전송 실패 시 텍스트 전송 (sendMessage fallback)
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {
-        "chat_id": CHAT_ID,
+        "chat_id": chat_id,
         "text": caption,
         "parse_mode": "Markdown",
         "disable_web_page_preview": True
@@ -261,8 +270,9 @@ def send_telegram(info):
     print("텍스트 알림 메시지 전송 완료!")
 
 if __name__ == "__main__":
-    if not BOT_TOKEN or not CHAT_ID or CHAT_ID == "YOUR_CHAT_ID":
-        raise ValueError("TELEGRAM_BOT_TOKEN과 TELEGRAM_CHAT_ID 환경변수를 확인해주세요.")
+    token, chat_id = get_credentials()
+    if not token or not chat_id:
+        raise ValueError("TELEGRAM_BOT_TOKEN과 TELEGRAM_CHAT_ID를 설정해주세요.")
     
     data = get_fear_and_greed()
     send_telegram(data)
