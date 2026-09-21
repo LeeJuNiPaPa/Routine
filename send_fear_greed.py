@@ -8,8 +8,21 @@ import matplotlib.patches as patches
 import numpy as np
 
 def get_credentials():
-    token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+    
+    for prefix in ["Secret :", "Secret:", "secret :", "secret:"]:
+        if prefix in token:
+            token = token.split(prefix)[-1].strip()
+        if prefix in chat_id:
+            chat_id = chat_id.split(prefix)[-1].strip()
+            
+    token = token.strip("\"' ")
+    chat_id = chat_id.strip("\"' ")
+    
+    if token.startswith("bot"):
+        token = token[3:].strip()
+        
     return token, chat_id
 
 def get_fear_and_greed():
