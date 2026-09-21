@@ -7,12 +7,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
 
-DEFAULT_BOT_TOKEN = "8538544741:AAFuPK-A0lcc0-rSUOHzO2zWD4T0ANVqV_c"
-DEFAULT_CHAT_ID = "6809012214"
-
 def get_credentials():
-    token = os.environ.get("TELEGRAM_BOT_TOKEN") or DEFAULT_BOT_TOKEN
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID") or DEFAULT_CHAT_ID
+    token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
     return token, chat_id
 
 def get_fear_and_greed():
